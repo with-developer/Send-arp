@@ -5,7 +5,6 @@
 #define ETHER_ADDR_LEN 6
 #define IP_ADDR_LEN 4
 #define ETHER_TYPE_ARP 0x0806
-#define PROTOCOL_TYPE_TCP 0x06
 
 struct libnet_ethernet_hdr
 {
@@ -14,49 +13,6 @@ struct libnet_ethernet_hdr
     u_int16_t ether_type;                 /* protocol */
 };
 
-struct libnet_ipv4_hdr
-{
-#if (LIBNET_LIL_ENDIAN)
-    u_int8_t ip_hl:4,      /* header length */
-           ip_v:4;         /* version */
-#endif
-#if (LIBNET_BIG_ENDIAN)
-    u_int8_t ip_v:4,       /* version */
-           ip_hl:4;        /* header length */
-#endif
-    u_int8_t ip_tos;       /* type of service */
-#ifndef IPTOS_LOWDELAY
-#define IPTOS_LOWDELAY      0x10
-#endif
-#ifndef IPTOS_THROUGHPUT
-#define IPTOS_THROUGHPUT    0x08
-#endif
-#ifndef IPTOS_RELIABILITY
-#define IPTOS_RELIABILITY   0x04
-#endif
-#ifndef IPTOS_LOWCOST
-#define IPTOS_LOWCOST       0x02
-#endif
-    u_int16_t ip_len;         /* total length */
-    u_int16_t ip_id;          /* identification */
-    u_int16_t ip_off;
-#ifndef IP_RF
-#define IP_RF 0x8000        /* reserved fragment flag */
-#endif
-#ifndef IP_DF
-#define IP_DF 0x4000        /* dont fragment flag */
-#endif
-#ifndef IP_MF
-#define IP_MF 0x2000        /* more fragments flag */
-#endif 
-#ifndef IP_OFFMASK
-#define IP_OFFMASK 0x1fff   /* mask for fragmenting bits */
-#endif
-    u_int8_t ip_ttl;          /* time to live */
-    u_int8_t ip_p;            /* protocol */
-    u_int16_t ip_sum;         /* checksum */
-    struct in_addr ip_src, ip_dst; /* source and dest address */
-};
 
 struct libnet_arp_hdr
 {
@@ -97,43 +53,11 @@ void printMAC(u_int8_t* src_mac, u_int8_t* dst_mac){
         printf("Destination Mac: %02x %02x %02x %02x %02x %02x\n", dst_mac[0],dst_mac[1],dst_mac[2],dst_mac[3],dst_mac[4],dst_mac[5]);
 }
 
-void printIP(struct in_addr src_ip, struct in_addr dst_ip) {
-    printf("Source IP: %d.%d.%d.%d\n",
-           src_ip.s_addr & 0xFF,
-           (src_ip.s_addr >> 8) & 0xFF,
-           (src_ip.s_addr >> 16) & 0xFF,
-           (src_ip.s_addr >> 24) & 0xFF);
-    printf("Destination IP: %d.%d.%d.%d\n",
-           dst_ip.s_addr & 0xFF,
-           (dst_ip.s_addr >> 8) & 0xFF,
-           (dst_ip.s_addr >> 16) & 0xFF,
-           (dst_ip.s_addr >> 24) & 0xFF);
+void printIP(u_int8_t* sender_ip, u_int8_t* target_ip) {
+    printf("Sender IP: %d.%d.%d.%d\n",sender_ip[0],sender_ip[1],sender_ip[2],sender_ip[3]);
+    printf("Target IP: %d.%d.%d.%d\n",target_ip[0], target_ip[1], target_ip[2], target_ip[3]);
 }
 
-void printPORT(u_int16_t src_port, u_int16_t dst_port){
-        printf("Soruce Port: %d\n", ntohs(src_port));
-        printf("Destination Port: %d\n", ntohs(dst_port));
-}
-
-void printDATA(int data_len, u_char* data){
-        if (data_len == 0){
-                printf("Payload(Data) is Zero Bytes\n");
-                return;
-        }
-        printf("Payload(Data) is %d Bytes\n",data_len);
-        printf("Payload(Data): ");
-	if(data_len < 10){
-		for(int i = 0; i <= data_len; i++){
-			printf("%02x ", data[i]);
-			}
-	}
-	else{
-		for(int i = 0; i <=9; i++){
-			printf("%02x ",data[i]);
-		}
-	}
-        printf(". . .\n");
-}
 
 void usage() {
         printf("syntax: pcap-test <interface>\n");
@@ -180,11 +104,7 @@ int main(int argc, char* argv[]) {
 
 
                 struct libnet_ethernet_hdr* eth_hdr = (struct libnet_ethernet_hdr*)packet;
-                //struct libnet_ipv4_hdr* ip_hdr = (struct libnet_ipv4_hdr*)(packet + sizeof(*eth_hdr));
 		struct libnet_arp_hdr* arp_hdr = (struct libnet_arp_hdr*)(packet + sizeof(*eth_hdr));
-                //struct libnet_tcp_hdr* tcp_hdr = (struct libnet_tcp_hdr*)(packet + sizeof(*eth_hdr) + ip_hdr -> ip_hl*4);
-                //u_char *data = (u_char *)(packet + sizeof(*eth_hdr) + ip_hdr->ip_hl * 4 + tcp_hdr->th_off * 4);
-		//int data_len = ntohs(ip_hdr->ip_len) - (ip_hdr->ip_hl * 4 + tcp_hdr->th_off * 4);
 
 		printf("\n%u bytes captured\n", header->caplen);	
                 
@@ -196,17 +116,8 @@ int main(int argc, char* argv[]) {
 		printMAC(eth_hdr -> ether_shost, eth_hdr -> ether_dhost);
                
 	       	printMAC(arp_hdr -> sender_mac, arp_hdr -> target_mac);	
-		//printIP(ip_hdr -> ip_src, ip_hdr -> ip_dst);
+		printIP(arp_hdr -> sender_ip, arp_hdr -> target_ip);
                 
-		//printf("Protocol Type: %u\n", ip_hdr -> ip_p);
-		//if(ip_hdr -> ip_p != PROTOCOL_TYPE_TCP){
-		//	printf("This packet is not TCP\n");
-		//	continue;
-		//}
-		
-		//printPORT(tcp_hdr -> th_sport, tcp_hdr -> th_dport);
-                
-		//printDATA(data_len, data);
         }
 
         pcap_close(pcap);
