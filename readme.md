@@ -5,11 +5,11 @@
 - 상태: 완료<br>
 - 유형: 과제
 
-# 코드
+# Source Code
 
 [https://github.com/with-developer/Send-arp](https://github.com/with-developer/Send-arp)
 
-# 결과
+# Result
 
 > 정상적으로 공격이 완료되었을 때
 > 
