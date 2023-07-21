@@ -210,7 +210,7 @@ char *get_mac(const char *dev, const char *attacker_mac, const char *attacker_ip
         }
 
         struct EthHdr *eth_hdr = (struct EthHdr *)packet;
-        struct ArpHdr *arp_hdr = (struct ArpHdr *)(packet + 14);
+        struct ArpHdr *arp_hdr = (struct ArpHdr *)(packet + sizeof(*eth_hdr));
 
         if (eth_hdr->type() != eth_hdr->Arp)
         {
@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         attack_tables[i].sender_mac = get_mac(dev, attacker_mac, attacker_ip, attack_tables[i].sender_ip);
         attack_tables[i].target_mac = get_mac(dev, attacker_mac, attacker_ip, attack_tables[i].target_ip);
 
-        printf("-------------Attack Table %d info-------------\n", i);
+        printf("--------------Attack Table %d info--------------\n", i);
         printf("Attacker Mac Address: %s\n", attacker_mac);
         printf("Attacker IP Address: %s\n", attacker_ip);
         printf("attack_table[%d].sender_mac: %s\n", i, attack_tables[i].sender_mac);
@@ -286,7 +286,7 @@ int main(int argc, char *argv[])
 
         printf("attack_table[%d].target_mac: %s\n", i, attack_tables[i].target_mac);
         printf("attack_table[%d].target_ip: %s\n", i, attack_tables[i].target_ip);
-        printf("----------------------------------------------\n");
+        printf("-----------------------------------------------\n");
         printf("\n");
     }
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
                attack_tables[i].target_ip,
                attack_tables[i].sender_mac,
                attack_tables[i].sender_ip);
-        printf("----------------------------------------------\n");
+        printf("-----------------------------------------------\n");
     }
 
     for (int i = 0; i < table_count; i++)
