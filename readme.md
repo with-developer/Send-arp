@@ -38,6 +38,10 @@ Sender(Victim)의 ARP table을 변조하라.
 
 [https://github.com/with-developer/Send-arp](https://github.com/with-developer/Send-arp)
 
+# Code Review Feedback FROM gilgil Mentor
+- 현재 코드에서 Sender IP, Target IP를 String 형식으로 입력받고, 프로세스 내부에서 연산할 때 대부분 string으로 처리를 합니다. (strcmp 등)
+- 프로세스 내부에서 연산을 할 때, Capture한 Packet의 IP 혹은 MAC을 string으로 변환하는 작업이 많이 일어나기 때문에, 처음 Sender IP, Target IP를 입력받았을 때 이를 바로 byte 단위로 변환하여 연산하면 코드가 더 효율적일 것이라는 피드백을 해주셨습니다.
+
 # Result
 
 > 정상적으로 공격이 완료되었을 때
