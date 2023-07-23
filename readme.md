@@ -9,6 +9,7 @@
 [Task](#task)<br>
 [ㄴDetail](#detail)<br>
 [Source code](#source-code)<br>
+[Code Reviw Feedback FROM gilgil mentor](#code-review-feedback-from-gilgil-Mentor)
 [Result](#result)<br><br>
 
 
